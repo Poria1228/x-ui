@@ -208,6 +208,3 @@ show_login_info(){
 }
 
 
-echo -e "${green}start installation${plain}"
-install_base
-install_x-ui $1
