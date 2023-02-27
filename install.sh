@@ -100,8 +100,8 @@ config_after_install() {
     done
     /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
     /usr/local/x-ui/x-ui setting -port ${config_port} >/dev/null 2>&1
-}
 
+}
 
 install_x-ui() {
     systemctl stop x-ui
