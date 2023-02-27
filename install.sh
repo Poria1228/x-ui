@@ -203,8 +203,6 @@ show_login_info(){
     echo -e "Password: ${GREEN}$config_password ${PLAIN}"
 }
 
-install_xui $1
-}
 
 echo -e "${green}start installation${plain}"
 install_base
