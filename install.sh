@@ -83,23 +83,24 @@ install_base() {
 
 #This function will be called when user installed x-ui out of sercurity
 config_after_install() {
-    echo -e "${red}Webilo: For security reasons, port and account passwords must be changed after installation/update${plain}"
-    read -p "Webilo: Confirm to continue? [y/n]": config_confirm
-    if [[ x"${config_confirm}" == x"y" || x"${config_confirm}" == x"Y" ]]; then
-        read -p "Webilo: your username:" config_account
-        echo -e "${yellow}Webilo: your username is:${config_account}${plain}"
-        read -p "Webilo: your password:" config_password
-        echo -e "${yellow}Webilo: Your password is:${config_password}${plain}"
-        read -p "Webilo: Panel port:" config_port
-        echo -e "${yellow}Webilo: Panel port is:${config_port}${plain}"
-        echo -e "${yellow}Webilo: OK ${plain}"
-        /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password}
-        echo -e "${yellow}webilo: The account password is set${plain}"
-        /usr/local/x-ui/x-ui setting -port ${config_port}
-        echo -e "${yellow}Webilo: Panel port setting completed${plain}"
-    else
-        echo -e "${red}Webilo: Canceled, all setting items are default settings, please modify in time${plain}"
-    fi
+
+    yellow "For security reasons, after the installation/ update, you need to remember the port and the account password"
+    read -rp "Please set the login user name [default is a random user name]: " config_account
+    [[ -z $config_account ]] && config_account=$(date +%s%N | md5sum | cut -c 1-8)
+    read -rp "Please set the login password. Don't include spaces [default is a random password]: " config_password
+    [[ -z $config_password ]] && config_password=$(date +%s%N | md5sum | cut -c 1-8)
+    read -rp "Please set the panel access port [default is a random port]: " config_port
+    [[ -z $config_port ]] && config_port=$(shuf -i 1000-65535 -n 1)
+    until [[ -z $(ss -ntlp | awk '{print $4}' | grep -w "$config_port") ]]; do
+        if [[ -n $(ss -ntlp | awk '{print $4}' | grep -w  "$config_port") ]]; then
+            yellow "The port you set is currently in uese, please reassign another port"
+            read -rp "Please set the panel access port [default ia a random port]: " config_port
+            [[ -z $config_port ]] && config_port=$(shuf -i 1000-65535 -n 1)
+        fi
+    done
+    /usr/local/x-ui/x-ui setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
+    /usr/local/x-ui/x-ui setting -port ${config_port} >/dev/null 2>&1
+}
 }
 
 install_x-ui() {
